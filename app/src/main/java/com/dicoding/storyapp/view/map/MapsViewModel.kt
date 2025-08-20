@@ -1,6 +1,5 @@
 package com.dicoding.storyapp.view.map
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -14,13 +13,16 @@ class MapsViewModel(private val repository: StoryRepository) : ViewModel() {
     private val _storiesWithLocation = MutableLiveData<List<ListStoryItem>>()
     val storiesWithLocation: LiveData<List<ListStoryItem>> = _storiesWithLocation
 
-    fun loadStoriesWithLocation() {
+    fun getSession() = repository.getSession()
+
+    fun loadStoriesWithLocation(token: String) {
         viewModelScope.launch {
             try {
-                val stories = repository.getStoriesWithLocation()
-                _storiesWithLocation.value = stories
+                val response = repository.getStoriesWithLocation(token)
+                _storiesWithLocation.value = response.listStory ?: emptyList()
             } catch (e: Exception) {
-                Log.e("MapsViewModel", "Error: ${e.message}")
+                e.printStackTrace()
+                _storiesWithLocation.value = emptyList()
             }
         }
     }

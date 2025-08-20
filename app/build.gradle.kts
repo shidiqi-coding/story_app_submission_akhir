@@ -2,7 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("kotlin-kapt")
-    alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
+
+
 }
 
 android {
@@ -34,6 +35,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
+        freeCompilerArgs += arrayOf("-Xopt-in=kotlin.RequiresOptIn")
     }
 
     buildFeatures {
@@ -80,4 +82,10 @@ dependencies {
 
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
+    implementation(libs.androidx.paging.runtime.ktx)
+    implementation(libs.androidx.room.paging)
+    implementation(libs.androidx.room.ktx)
+    kapt(libs.room.compiler)
+
+
 }

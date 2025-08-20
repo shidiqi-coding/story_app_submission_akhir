@@ -8,12 +8,22 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.liveData
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.liveData
 import com.dicoding.storyapp.data.ResultState
+import com.dicoding.storyapp.data.StoryRemoteMediator
+import com.dicoding.storyapp.data.database.StoryDao
+import com.dicoding.storyapp.data.database.StoryDatabase
+import com.dicoding.storyapp.data.database.StoryEntity
 import com.dicoding.storyapp.data.pref.UserModel
 import com.dicoding.storyapp.data.pref.UserPreference
 import com.dicoding.storyapp.data.response.ListStoryItem
 import com.dicoding.storyapp.data.response.UploadResponse
 import com.dicoding.storyapp.data.response.Story
+import com.dicoding.storyapp.data.response.StoryResponse
 import com.dicoding.storyapp.data.retrofit.ApiService
 import kotlinx.coroutines.flow.first
 import okhttp3.MultipartBody
@@ -25,6 +35,7 @@ import java.io.IOException
 class StoryRepository(
     private val apiService: ApiService ,
     private val userPreference: UserPreference,
+    private val storyDatabase: StoryDatabase,
     private val context: Context
 ) {
 
@@ -97,23 +108,21 @@ class StoryRepository(
         }
     }
 
-    suspend fun getStories(): List<ListStoryItem> {
+    @OptIn(ExperimentalPagingApi::class)
+    fun getStories(): LiveData<PagingData<StoryEntity>> = liveData {
         val user = userPreference.getSession().first()
         val token = "Bearer ${user.token}"
-        Log.d("DEBUG_TOKEN", token)
 
-        return try {
-            val response = apiService.getStories(token)
-            response.listStory?.filterNotNull() ?: emptyList()
-        } catch (e: HttpException) {
-            val code = e.code()
-            val message = e.message()
-            Log.e("GET_STORIES_ERROR", "HTTP exception: $code $message")
-            throw Exception(context.getString(R.string.error_server, code, message))
-        } catch (e: IOException) {
-            Log.e("GET_STORIES_ERROR", "Network error: ${e.message}")
-            throw Exception(context.getString(R.string.error_connection))
-        }
+        val pager = Pager(
+            config = PagingConfig(
+                pageSize = 5,
+                enablePlaceholders = false
+            ),
+            remoteMediator = StoryRemoteMediator(storyDatabase, apiService, token),
+            pagingSourceFactory = { storyDatabase.storyDao().getAllStories() }
+        ).liveData
+
+        emitSource(pager)
     }
 
 
@@ -138,22 +147,8 @@ class StoryRepository(
         }
     }
 
-    suspend fun getStoriesWithLocation(): List<ListStoryItem> {
-        val user = userPreference.getSession().first()
-        val token = "Bearer ${user.token}"
-
-        return try {
-            val response = apiService.getStoriesWithLocation(token, "1")
-            response.listStory?.filterNotNull() ?: emptyList()
-        } catch (e: HttpException) {
-            val code = e.code()
-            val message = e.message()
-            Log.e("GET_STORIES_LOC_ERROR", "HTTP exception: $code $message")
-            throw Exception(context.getString(R.string.error_server, code, message))
-        } catch (e: IOException) {
-            Log.e("GET_STORIES_LOC_ERROR", "Network error: ${e.message}")
-            throw Exception(context.getString(R.string.error_connection))
-        }
+    suspend fun getStoriesWithLocation(token: String): StoryResponse {
+        return apiService.getStoriesWithLocation(token)
     }
 
 
@@ -174,10 +169,11 @@ class StoryRepository(
         fun getInstance(
             apiService: ApiService ,
             userPreference: UserPreference,
+            storyDatabase: StoryDatabase,
             context : Context
         ): StoryRepository {
             return INSTANCE ?: synchronized(this) {
-                val instance = StoryRepository(apiService , userPreference, context)
+                val instance = StoryRepository(apiService , userPreference, storyDatabase, context)
                 INSTANCE = instance
                 instance
             }

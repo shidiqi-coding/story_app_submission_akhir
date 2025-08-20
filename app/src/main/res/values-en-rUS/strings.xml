@@ -92,6 +92,9 @@ and other interesting experiences?</string>
     <string name="minimum_password">Password must be at least 8 characters</string>
 
     <string name="title_activity_maps">Maps</string>
+    <string name="new_marker">New Marker</string>
+    <string name="style_failed">Style parsing failed</string>
+    <string name="style_error">Can\'t find style, Error:</string>
 
 
 

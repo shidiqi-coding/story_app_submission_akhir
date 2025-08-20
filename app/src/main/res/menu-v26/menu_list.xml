@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/action_setting"
@@ -12,5 +13,11 @@
         android:id="@+id/action_logout"
         android:icon="@drawable/ic_logout"
         android:title="@string/logout" />
+
+    <item
+        android:id="@+id/action_map"
+        android:icon="@drawable/map_ic"
+        android:title="@string/title_activity_maps"
+        app:showAsAction="always"/>
 
 </menu>

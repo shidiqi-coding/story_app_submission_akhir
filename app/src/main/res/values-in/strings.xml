@@ -92,6 +92,10 @@
     <string name="minimum_password">Password minimal 8 karakter</string>
 
     <string name="title_activity_maps">Peta</string>
+    <string name="new_marker">Penanda Baru</string>
+    <string name="style_failed">Penguraian Style Gagal</string>
+    <string name="style_error">Tidak dapat menemukan Style, Kesalahan:</string>
+
 
 
 
