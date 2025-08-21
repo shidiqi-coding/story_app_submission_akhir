@@ -52,6 +52,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation(libs.play.services.ads)
     implementation(libs.play.services.maps)
+    implementation(libs.junit.jupiter)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -80,12 +81,23 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
     kapt("com.github.bumptech.glide:compiler:4.16.0")
 
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.inline)
+    testImplementation(libs.androidx.core.testing)
+    testImplementation(libs.kotlinx.coroutines.test)
+
+
+    androidTestImplementation(libs.androidx.core.testing)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
+
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
     implementation(libs.androidx.paging.runtime.ktx)
     implementation(libs.androidx.room.paging)
     implementation(libs.androidx.room.ktx)
     kapt(libs.room.compiler)
+
+
 
 
 }

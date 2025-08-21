@@ -96,7 +96,8 @@ and other interesting experiences?</string>
     <string name="style_failed">Style parsing failed</string>
     <string name="style_error">Can\'t find style, Error:</string>
 
-
+    <string name="no_name">No name</string>
+    <string name="story_no_location">Story %1$s has no location</string>
 
 
 </resources>

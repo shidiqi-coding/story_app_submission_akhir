@@ -93,6 +93,9 @@
     <string name="style_failed">Penguraian Style Gagal</string>
     <string name="style_error">Tidak dapat menemukan Style, Kesalahan:</string>
 
+    <string name="no_name">Tidak ada nama</string>
+    <string name="story_no_location">Story %1$s tidak punya lokasi</string>
+
 
 
 

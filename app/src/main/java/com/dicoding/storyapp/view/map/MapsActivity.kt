@@ -2,6 +2,7 @@ package com.dicoding.storyapp.view.map
 
 import android.Manifest
 import android.content.ContentValues.TAG
+import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.graphics.Bitmap
@@ -21,12 +22,14 @@ import androidx.activity.viewModels
 import com.dicoding.storyapp.R
 import com.dicoding.storyapp.databinding.ActivityMapsBinding
 import com.dicoding.storyapp.ViewModelFactory
+import com.dicoding.storyapp.view.helper.LocaleHelper
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 
+@Suppress("SENSELESS_COMPARISON")
 class MapsActivity : AppCompatActivity() , OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
@@ -35,6 +38,13 @@ class MapsActivity : AppCompatActivity() , OnMapReadyCallback {
     private val mapsViewModel: MapsViewModel by viewModels {
         ViewModelFactory.getInstance(this)
     }
+
+    override fun attachBaseContext(newBase: Context?) {
+        val langCode = LocaleHelper.getSavedLanguage(newBase ?: return)
+        val contextWithLocale = LocaleHelper.applyLanguage(newBase, langCode)
+        super.attachBaseContext(contextWithLocale)
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,18 +77,18 @@ class MapsActivity : AppCompatActivity() , OnMapReadyCallback {
                     mMap.addMarker(
                         MarkerOptions()
                             .position(latLng)
-                            .title(story.name ?: "No Name")
+                            .title(story.name ?: getString(R.string.no_name))
                             .snippet(story.description ?: "")
                     )
                 } else {
-                    Log.w("MapsActivity" , "Story ${story.id} tidak punya lokasi")
+                    Log.w("MapsActivity",getString(R.string.story_no_location, story.id))
                 }
             }
 
 
             val firstValid = stories.firstOrNull { it.lat != null && it.lon != null }
             firstValid?.let { story ->
-                val latLng = LatLng(story.lat!! , story.lon!!)
+                val latLng = LatLng(story.lat , story.lon)
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng , 5f))
             }
         }

@@ -3,7 +3,6 @@ package com.dicoding.storyapp.view.main
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
-
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
@@ -11,13 +10,12 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
-import androidx.core.content.ContextCompat
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityOptionsCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dicoding.storyapp.R
@@ -26,15 +24,15 @@ import com.dicoding.storyapp.data.pref.UserPreference
 import com.dicoding.storyapp.databinding.ActivityMainBinding
 import com.dicoding.storyapp.view.WelcomeActivity
 import com.dicoding.storyapp.view.detail.DetailActivity
+import com.dicoding.storyapp.view.helper.LocaleHelper
+import com.dicoding.storyapp.view.map.MapsActivity
 import com.dicoding.storyapp.view.newstory.NewStoryActivity
 import com.dicoding.storyapp.view.setting.SettingActivity
 import com.dicoding.storyapp.view.setting.SettingPreferences
-import com.dicoding.storyapp.view.helper.LocaleHelper
-import com.dicoding.storyapp.view.map.MapsActivity
 import com.dicoding.storyapp.view.widget.ImagesBannerWidget
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.collectLatest
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
@@ -47,7 +45,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var adapter: ListStoryAdapter
 
-
     override fun attachBaseContext(newBase: Context?) {
         val langCode = LocaleHelper.getSavedLanguage(newBase ?: return)
         val contextWithLocale = LocaleHelper.applyLanguage(newBase, langCode)
@@ -55,30 +52,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        applyThemeFromPreferences()
         setLocaleFromPreferences()
 
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        applyThemeFromPreferences()
         setupRecyclerView()
-        observeView()
+        observeStories()
         setUpGreeting()
-        viewModel.getStories()
 
         binding.fabAddStory.setOnClickListener {
             val intent = Intent(this, NewStoryActivity::class.java)
-
             val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 this,
                 androidx.core.util.Pair(binding.fabAddStory, "fab_add_story")
             )
-
             startActivity(intent, options.toBundle())
-            }
-
-
+        }
     }
 
     private fun setUpGreeting() {
@@ -92,43 +85,51 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        adapter = ListStoryAdapter { storyId, imageView, nameView, descView ->
+        adapter = ListStoryAdapter { story, imageView, nameView, descView ->
             val intent = Intent(this, DetailActivity::class.java).apply {
-                putExtra(DetailActivity.EXTRA_STORY_ID, storyId)
+                putExtra(DetailActivity.EXTRA_STORY_ID, story.id)
             }
 
             val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 this,
                 androidx.core.util.Pair(imageView as View, imageView.transitionName),
                 androidx.core.util.Pair(nameView as View, nameView.transitionName),
-                androidx.core.util.Pair(imageView as View, imageView.transitionName),
-                androidx.core.util.Pair(descView as View, descView.transitionName) ,
+                androidx.core.util.Pair(descView as View, descView.transitionName),
             )
 
             startActivity(intent, options.toBundle())
         }
 
         binding.rvStoryList.layoutManager = LinearLayoutManager(this)
-        binding.rvStoryList.adapter = adapter
-    }
+        binding.rvStoryList.adapter = adapter.withLoadStateFooter(
+            footer = LoadingStateAdapter { adapter.retry() }
+        )
 
-    private fun observeView() {
-        viewModel.storyList.observe(this) { stories ->
-            adapter.submitList(stories)
+        adapter.addLoadStateListener {loadState ->
+            binding.menuPB.visibility =
+                if (loadState.source.refresh is androidx.paging.LoadState.Loading) View.VISIBLE
+            else View.GONE
 
-            if (stories.isNotEmpty()) {
-                refreshWidgetStackView()
+            val errorState = loadState.source.append as? androidx.paging.LoadState.Error
+                ?: loadState.source.prepend as? androidx.paging.LoadState.Error
+                ?: loadState.refresh as? androidx.paging.LoadState.Error
+                ?: loadState.append as? androidx.paging.LoadState.Error
+
+            errorState?.let {
+                android.widget.Toast.makeText(
+                    this,
+                    "Error: ${it.error.localizedMessage}",
+                    android.widget.Toast.LENGTH_LONG
+                ).show()
             }
         }
+    }
 
-        viewModel.loading.observe(this) { isLoading ->
-            binding.menuPB.visibility = if (isLoading) View.VISIBLE else View.GONE
-        }
-
-        viewModel.errorMessage.observe(this) { error ->
-            if (!error.isNullOrEmpty()) {
-                Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
-                viewModel.clearError()
+    private fun observeStories() {
+        lifecycleScope.launch {
+            viewModel.stories.collectLatest { pagingData ->
+                adapter.submitData(pagingData)
+                refreshWidgetStackView()
             }
         }
     }
@@ -138,7 +139,6 @@ class MainActivity : AppCompatActivity() {
         val appWidgetManager = AppWidgetManager.getInstance(this)
         val componentName = ComponentName(this, ImagesBannerWidget::class.java)
         val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
-
         appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.stack_view)
     }
 
@@ -162,17 +162,14 @@ class MainActivity : AppCompatActivity() {
                 startActivity(Intent(this, SettingActivity::class.java))
                 true
             }
-
             R.id.action_logout -> {
                 showLogoutDialog()
                 true
             }
-
             R.id.action_map -> {
                 startActivity(Intent(this, MapsActivity::class.java))
                 true
             }
-
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -224,7 +221,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setLocaleFromPreferences() {
         val settingPref = SettingPreferences.getInstance(this)
-        runBlocking {
+        lifecycleScope.launch {
             val langCode = settingPref.getLanguageSetting().first() ?: "en"
             setLocale(this@MainActivity, langCode)
         }
@@ -237,11 +234,6 @@ class MainActivity : AppCompatActivity() {
         val config = Configuration()
         config.setLocale(locale)
         context.resources.updateConfiguration(config, context.resources.displayMetrics)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.getStories()
     }
 
     override fun onDestroy() {
