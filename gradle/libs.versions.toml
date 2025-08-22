@@ -14,13 +14,8 @@ pagingRuntimeKtx = "3.3.6"
 roomPaging = "2.7.2"
 roomCompiler = "2.7.2"
 roomKtx = "2.7.2"
-mockitoCore = "5.7.0"
-mockitoInline = "5.2.0"
 coreTesting = "2.2.0"
-kotlinxCoroutinesTest = "1.6.4"
 
-mapsSecretsPlugin = "2.0.1"
-junitJupiter = "5.8.1"
 
 
 [libraries]
@@ -37,11 +32,9 @@ play-services-location = { module = "com.google.android.gms:play-services-locati
 androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "roomPaging" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomKtx" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
-mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
-mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockitoInline" }
-androidx-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
-kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
-junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
+androidx-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "coreTesting" }
+
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

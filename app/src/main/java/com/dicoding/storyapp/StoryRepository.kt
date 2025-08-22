@@ -146,6 +146,36 @@ class StoryRepository(
         }
     }
 
+    fun getNewStory(): LiveData<ResultState<List<StoryEntity>>> = liveData {
+        emit(ResultState.Loading)
+        try {
+            val user = userPreference.getSession().first()
+            val token = "Bearer ${user.token ?: ""}"
+
+            val response = apiService.getStoriesWithLocation(token)
+            if (response.error == false && response.listStory != null) {
+                emit(ResultState.Success(response.listStory.map {
+                    StoryEntity(
+                        id = it.id ?: "",
+                        name = it.name ?: "Unknown",
+                        description = it.description ?: "",
+                        photoUrl = it.photoUrl ?: "",
+                        createdAt = it.createdAt ?: "",
+                        lat = it.lat ?: 0.0,
+                        lon = it.lon ?: 0.0
+                    )
+                }))
+            } else {
+                emit(ResultState.Error(response.message ?: "Unknown error"))
+            }
+        } catch (e: HttpException) {
+            emit(ResultState.Error("HTTP Error: ${e.message()}"))
+        } catch (e: IOException) {
+            emit(ResultState.Error(context.getString(R.string.error_network)))
+        }
+    }
+
+
     suspend fun getStoriesWithLocation(token: String): StoryResponse {
         return apiService.getStoriesWithLocation(token)
     }
