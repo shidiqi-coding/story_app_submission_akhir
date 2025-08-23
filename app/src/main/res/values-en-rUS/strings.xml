@@ -24,7 +24,6 @@ and other interesting experiences?</string>
     <string name="password_register_input">Enter your password</string>
 
 
-
     <string name="error_password">Password must not be less than 8 characters</string>
 
 
@@ -41,7 +40,7 @@ and other interesting experiences?</string>
     <string name="register_failed">Registration failed</string>
     <string name="error_invalid_password">Invalid password</string>
     <string name="login_success_message">You Have Successfully logged in. Are you ready to share your story?</string>
-    <string name ="register_success_message">Account %1$s has been successfully created. Let\'s share your stories and experiences</string>
+    <string name="register_success_message">Account %1$s has been successfully created. Let\'s share your stories and experiences</string>
     <string name="user_not_found">"user not found</string>
     <string name="continue_button">continue</string>
     <string name="login_failed_title">Login Failed</string>
@@ -83,8 +82,8 @@ and other interesting experiences?</string>
     <string name="error_connection">Failed to connect to the server. Please check your connection.</string>
     <string name="error_detail_connection">Failed to retrieve story details:</string>
     <string name="error_network">A network error occurred</string>
-    <string name ="error_message">There is an error</string>
-    <string name ="display_camera_failed">Failed to display camera</string>
+    <string name="error_message">There is an error</string>
+    <string name="display_camera_failed">Failed to display camera</string>
     <string name="upload_image_failed">Failed to upload image</string>
     <string name="required_name">Name is required</string>
     <string name="required_email">Email is required</string>
@@ -98,6 +97,11 @@ and other interesting experiences?</string>
 
     <string name="no_name">No name</string>
     <string name="story_no_location">Story %1$s has no location</string>
+    <string name="current_location">Current location</string>
+    <string name="location_permission_denied">Location permission denied. Location will not be included.</string>
+    <string name="gps_off">GPS belum off</string>
+    <string name="location_off">Location not included</string>
+    <string name="location_failed">Failed to get location</string>
 
 
 </resources>

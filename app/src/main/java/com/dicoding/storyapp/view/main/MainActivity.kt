@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity() {
 
         adapter.addLoadStateListener {loadState ->
             binding.menuPB.visibility =
-                if (loadState.source.refresh is androidx.paging.LoadState.Loading) View.VISIBLE
+                if (loadState.refresh is androidx.paging.LoadState.Loading) View.VISIBLE
             else View.GONE
 
             val errorState = loadState.source.append as? androidx.paging.LoadState.Error

@@ -95,8 +95,11 @@
 
     <string name="no_name">Tidak ada nama</string>
     <string name="story_no_location">Story %1$s tidak punya lokasi</string>
-
-
+    <string name="current_location">Lokasi saat ini</string>
+    <string name="location_permission_denied">Izin lokasi ditolak. Lokasi tidak akan disertakan.</string>
+    <string name="gps_off">GPS belum aktif</string>
+    <string name="location_off">Lokasi tidak disertakan</string>
+    <string name="location_failed">Gagal mendapatkan lokasi</string>
 
 
 </resources>

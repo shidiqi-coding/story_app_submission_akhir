@@ -9,7 +9,6 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.liveData
 import com.dicoding.storyapp.data.ResultState
 import com.dicoding.storyapp.data.StoryRemoteMediator
 import com.dicoding.storyapp.data.database.StoryDatabase
@@ -20,6 +19,7 @@ import com.dicoding.storyapp.data.response.Story
 import com.dicoding.storyapp.data.response.StoryResponse
 import com.dicoding.storyapp.data.response.UploadResponse
 import com.dicoding.storyapp.data.retrofit.ApiService
+import com.dicoding.storyapp.utils.EspressoIdlingResource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -38,6 +38,7 @@ class StoryRepository(
 
     fun login(email: String, password: String) = liveData {
         emit(ResultState.Loading)
+        EspressoIdlingResource.increment()
         try {
             val response = apiService.login(email, password)
             val error = response.error ?: true
@@ -51,8 +52,11 @@ class StoryRepository(
         } catch (e: HttpException) {
             val errorMsg = e.response()?.errorBody()?.string()
             emit(ResultState.Error(errorMsg ?: context.getString(R.string.error_network)))
-        } catch (e: IOException) {
+        } catch (_: IOException) {
             emit(ResultState.Error(context.getString(R.string.error_network)))
+        }
+        finally {
+            EspressoIdlingResource.decrement()
         }
     }
 
@@ -77,7 +81,7 @@ class StoryRepository(
                 context.getString(R.string.error_network)
             }
             emit(ResultState.Error(errorMsg))
-        } catch (e: IOException) {
+        } catch (_: IOException) {
             emit(ResultState.Error(context.getString(R.string.error_network)))
         }
     }
@@ -150,7 +154,7 @@ class StoryRepository(
         emit(ResultState.Loading)
         try {
             val user = userPreference.getSession().first()
-            val token = "Bearer ${user.token ?: ""}"
+            val token = "Bearer ${user.token}"
 
             val response = apiService.getStoriesWithLocation(token)
             if (response.error == false && response.listStory != null) {
