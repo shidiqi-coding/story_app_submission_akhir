@@ -1,13 +1,14 @@
 package com.dicoding.storyapp.view.map
 
+
 import android.Manifest
-import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -19,10 +20,14 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.activity.viewModels
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.dicoding.storyapp.R
-import com.dicoding.storyapp.databinding.ActivityMapsBinding
 import com.dicoding.storyapp.ViewModelFactory
+import com.dicoding.storyapp.databinding.ActivityMapsBinding
 import com.dicoding.storyapp.view.helper.LocaleHelper
+import com.dicoding.storyapp.view.maps.CustomInfoWindowAdapter
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -41,10 +46,9 @@ class MapsActivity : AppCompatActivity() , OnMapReadyCallback {
 
     override fun attachBaseContext(newBase: Context?) {
         val langCode = LocaleHelper.getSavedLanguage(newBase ?: return)
-        val contextWithLocale = LocaleHelper.applyLanguage(newBase, langCode)
+        val contextWithLocale = LocaleHelper.applyLanguage(newBase , langCode)
         super.attachBaseContext(contextWithLocale)
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,25 +70,31 @@ class MapsActivity : AppCompatActivity() , OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
+        mMap.setInfoWindowAdapter(CustomInfoWindowAdapter(this))
+
         mapsViewModel.storiesWithLocation.observe(this) { stories ->
             stories?.forEach { story ->
                 val lat = story.lat
                 val lon = story.lon
 
-
                 if (lat != null && lon != null) {
                     val latLng = LatLng(lat , lon)
-                    mMap.addMarker(
+
+
+                    val marker = mMap.addMarker(
                         MarkerOptions()
                             .position(latLng)
                             .title(story.name ?: getString(R.string.no_name))
                             .snippet(story.description ?: "")
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
                     )
+
+
+                    marker?.tag = story.photoUrl
                 } else {
-                    Log.w("MapsActivity",getString(R.string.story_no_location, story.id))
+                    Log.w("MapsActivity" , getString(R.string.story_no_location , story.id))
                 }
             }
-
 
             val firstValid = stories.firstOrNull { it.lat != null && it.lon != null }
             firstValid?.let { story ->
@@ -95,22 +105,26 @@ class MapsActivity : AppCompatActivity() , OnMapReadyCallback {
 
 
         mMap.setOnMapLongClickListener { latLng ->
-            mMap.addMarker(
+            val marker = mMap.addMarker(
                 MarkerOptions()
                     .position(latLng)
                     .title(getString(R.string.new_marker))
+                    .snippet(getString(R.string.snippet))
                     .icon(vecTorBitmap(R.drawable.ic_location_marker , Color.parseColor("#FF7F00")))
             )
+            marker?.tag = null
+            marker?.showInfoWindow()
         }
 
-        mMap.setOnPoiClickListener {pointOfInterest ->
+
+        mMap.setOnPoiClickListener { pointOfInterest ->
             val poiMarker = mMap.addMarker(
                 MarkerOptions()
                     .position(pointOfInterest.latLng)
                     .title(pointOfInterest.name)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA))
-
             )
+            poiMarker?.tag = "https://picsum.photos/300/200"
             poiMarker?.showInfoWindow()
         }
 

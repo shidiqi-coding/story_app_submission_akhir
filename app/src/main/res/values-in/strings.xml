@@ -103,7 +103,9 @@
     <string name="gps_off">GPS belum aktif</string>
     <string name="location_off">Lokasi tidak disertakan</string>
     <string name="location_failed">Gagal mendapatkan lokasi</string>
-
+    <string name="map_title">Nama Lokasi</string>
+    <string name="snippet">Potongan</string>
+    <string name="try_again">Coba lagi</string>
 
 
 </resources>

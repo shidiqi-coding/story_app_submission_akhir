@@ -102,6 +102,9 @@ and other interesting experiences?</string>
     <string name="gps_off">GPS belum off</string>
     <string name="location_off">Location not included</string>
     <string name="location_failed">Failed to get location</string>
+    <string name="map_title">Nama Lokasi</string>
+    <string name="snippet">Snippet</string>
+    <string name="try_again">Try again</string>
 
 
 </resources>

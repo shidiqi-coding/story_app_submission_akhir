@@ -40,7 +40,8 @@ android {
 
     buildFeatures {
         viewBinding = true
-        //buildConfig = true
+        buildConfig = true
+
     }
 }
 
@@ -91,12 +92,15 @@ dependencies {
     kapt("com.github.bumptech.glide:compiler:4.16.0")
 
     testImplementation("junit:junit:4.13.2")
+    testImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
     testImplementation("org.mockito:mockito-core:5.11.0")
     testImplementation("org.mockito:mockito-inline:5.2.0")
     testImplementation("androidx.arch.core:core-testing:2.2.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
     testImplementation("net.bytebuddy:byte-buddy:1.14.4")
     testImplementation("net.bytebuddy:byte-buddy-agent:1.14.4")
+
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
 
 
