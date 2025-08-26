@@ -5,7 +5,7 @@ import com.dicoding.storyapp.data.database.StoryEntity
 object DataStoryDummy {
     fun generateDummyStoryEntity(): List<StoryEntity> {
         val storyList = ArrayList<StoryEntity>()
-        for (i in 0..10) {
+        repeat(11) {
             val story = StoryEntity(
                 id = "1" ,
                 name = "Story 1" ,
