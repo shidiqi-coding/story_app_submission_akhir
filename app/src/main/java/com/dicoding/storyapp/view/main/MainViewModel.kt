@@ -18,7 +18,7 @@ class MainViewModel(private val repository: StoryRepository) : ViewModel() {
         repository.getStories().cachedIn(viewModelScope)
 
     fun getNewStory(): LiveData<ResultState<List<StoryEntity>>> {
-        return getNewStory()
+        return repository.getNewStory()
     }
 
 
