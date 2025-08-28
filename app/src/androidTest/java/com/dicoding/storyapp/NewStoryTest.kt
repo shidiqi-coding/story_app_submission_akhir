@@ -1,4 +1,3 @@
-// com.dicoding.storyapp.AddStoryTest.kt
 package com.dicoding.storyapp
 
 import android.app.Instrumentation
@@ -72,16 +71,12 @@ class NewStoryTest {
         val result = Instrumentation.ActivityResult(android.app.Activity.RESULT_OK, resultData)
         Intents.intending(expectedIntent).respondWith(result)
 
-        // Click gallery button
         onView(withId(R.id.galleryButton)).perform(click())
 
-        // Verify image was selected (check if image preview is displayed)
-        //onView(withId(R.id.imagePreview)).check(matches(isDisplayed()))
-
-        // Click upload button
+      
         onView(withId(R.id.uploadButton)).perform(click())
 
-        // Wait for upload to complete and verify we return to MainActivity
+  
         onView(withId(R.id.rvStoryList)).check(matches(isDisplayed()))
     }
 
@@ -91,10 +86,10 @@ class NewStoryTest {
 
         onView(withId(R.id.fabAddStory)).perform(click())
 
-        // Click back button to cancel
+ 
         onView(withContentDescription("Navigate up")).perform(click())
 
-        // Verify we're back to MainActivity
         onView(withId(R.id.rvStoryList)).check(matches(isDisplayed()))
     }
+
 }
