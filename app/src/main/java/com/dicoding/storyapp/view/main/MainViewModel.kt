@@ -19,8 +19,9 @@ class MainViewModel(
 
     private val scope = coroutineScope ?: viewModelScope
 
-    val stories: Flow<PagingData<StoryEntity>> =
-        repository.getStories().cachedIn(scope)
+    fun getStories(): Flow<PagingData<StoryEntity>> {
+        return repository.getStories().cachedIn(viewModelScope)
+    }
 
     fun getNewStory(): LiveData<ResultState<List<StoryEntity>>> {
         return repository.getNewStory()
