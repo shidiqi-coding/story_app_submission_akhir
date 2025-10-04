@@ -24,6 +24,7 @@ class SplashActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_splash)
 
+        
         val prefs = SettingPreferences.getInstance(this)
         lifecycleScope.launch {
             prefs.getThemeSetting().collect { themeValue ->
@@ -31,38 +32,42 @@ class SplashActivity : AppCompatActivity() {
             }
         }
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v , insets ->
+     
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left , systemBars.top , systemBars.right , systemBars.bottom)
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        Handler(Looper.getMainLooper()).postDelayed(
-            {
-                val onboardingPref= getSharedPreferences("onBoarding",MODE_PRIVATE)
-                val userPref = getSharedPreferences("user_session",MODE_PRIVATE)
 
-                val isFirstRun = onboardingPref.getBoolean("isFirstRun", true)
-                val isLoggedIn = userPref.getBoolean("isLoggedIn",true)
+        // ✅ Delay splash selama 3 detik sebelum pindah layar
+        Handler(Looper.getMainLooper()).postDelayed({
+            val onboardingPref = getSharedPreferences("onBoarding", MODE_PRIVATE)
+            val userPref = getSharedPreferences("user_session", MODE_PRIVATE)
 
-               when {
-                   isFirstRun -> {
-                       onboardingPref.edit().putBoolean("isFirstRun",true).apply()
-                       startActivity(Intent(this, WelcomeActivity::class.java))
+            val isFirstRun = onboardingPref.getBoolean("isFirstRun", true)
+            val isLoggedIn = userPref.getBoolean("isLoggedIn", true) // <- HARUS false default-nya
 
-                   }
+            when {
+                // ✅ Pertama kali install -> WelcomeActivity
+                isFirstRun -> {
+                    onboardingPref.edit().putBoolean("isFirstRun", true).apply()
+                    startActivity(Intent(this, WelcomeActivity::class.java))
+                }
 
-                   isLoggedIn -> {
-                       startActivity(Intent(this, MainActivity::class.java))
-                   }
+                // ✅ Sudah login -> langsung MainActivity
+                isLoggedIn -> {
+                    startActivity(Intent(this, MainActivity::class.java))
+                }
 
-                   else -> {
-                       startActivity(Intent(this, LoginActivity::class.java))
-                   }
-               }
-               finish()
+                // ✅ Belum login -> ke LoginActivity
+                else -> {
+                    startActivity(Intent(this, LoginActivity::class.java))
+                }
+            }
 
-            } , 3000
-        )
+            finish()
+        }, 3000)
+
         supportActionBar?.hide()
     }
 
@@ -73,5 +78,4 @@ class SplashActivity : AppCompatActivity() {
             2 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         }
     }
-
 }
